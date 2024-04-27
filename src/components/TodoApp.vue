@@ -1,11 +1,15 @@
 <template>
-  <Input
-    v-model:value="field"
-    class="input"
-    @keyup.enter="handleAddTodo"
-    placeholder="Type name of todo"
-  />
+  <div class="input-group">
+    <Input
+      v-model:value="field"
+      class="input"
+      @keyup.enter="handleAddTodo"
+      placeholder="Type name of todo"
+    />
+    <button @click="handleAddTodo">ADD</button>
+  </div>
 
+  <VueDatePicker v-model="deadline"  :enable-time-picker="false" :format="format" auto-apply></VueDatePicker>
   <Typography>Done: {{ store.doneTodosCount }}</Typography>
   <Typography>Important: {{ store.importantTodosCount }}</Typography>
   <Typography>Active: {{ store.activeTodosCount }}</Typography>
@@ -20,9 +24,9 @@
             title="Toggle important"
           />
         </div>
-        <Typography :class="{ 'line-through': item.done, 'text-bold': item.important }">{{
-          item.text
-        }}</Typography>
+        <Typography :class="{ 'line-through': item.done, 'text-bold': item.important }">
+        {{format2(item.deadline)}} --- {{item.text}}
+        </Typography>
         <CloseCircleOutlined @click="store.removeTodo(item.id)"
       /></ListItem>
     </template>
@@ -37,25 +41,78 @@ import { v4 as uuidv4 } from 'uuid';
 import CloseCircleOutlined from '@ant-design/icons-vue/lib/icons/CloseCircleOutlined';
 import CheckOutlined from '@ant-design/icons-vue/lib/icons/CheckOutlined';
 import ExclamationOutlined from '@ant-design/icons-vue/lib/icons/ExclamationOutlined';
+import { addData, getData } from '@/service/service';
+import VueDatePicker from '@vuepic/vue-datepicker';
+import '@vuepic/vue-datepicker/dist/main.css';
+
 
 const field = ref('');
+const deadline = ref(new Date());
 const store = useTodoStore();
 
-function createTodo(text: string) {
-  return { text, id: uuidv4(), done: false, important: false };
+if (store.todos.length === 0) getTodos();
+
+const format = (deadline: Date) => {
+  if (!deadline) return '';
+
+  const day = deadline.getDate();
+  const month = deadline.getMonth() + 1;
+  const year = deadline.getFullYear();
+
+  return `${day}/${month}/${year}`;
+};
+
+function format2 (deadline: Date){
+  if (!deadline) return '';
+
+  const deadline_format = new Date(deadline);
+  const day = deadline_format.getDate();
+  const month = deadline_format.getMonth() + 1;
+  const year = deadline_format.getFullYear();
+
+  return `${day}/${month}/${year}`;
+}
+
+async function getTodos() {
+  try {
+    const todos = await getData();
+      
+    if (todos.length > 0) {
+      for(var todo in todos){
+        let todoDB = {text: todos[todo].text, id: todos[todo].id, done: todos[todo].done, important: todos[todo].important, deadline: todos[todo].deadline}; 
+        store.addTodo(todoDB);        
+      }
+    }
+  } catch (error) {
+    console.error('Error getting todos:', error);
+  }
+}
+
+
+function createTodo(text: string, deadline: Date) {
+  return {text, id: uuidv4(), done: false, important: false, deadline: deadline};
 }
 
 function handleAddTodo() {
-  const todo = createTodo(field.value);
+  const todo = createTodo(field.value, deadline.value);
   store.addTodo(todo);
 
   field.value = '';
+  
+  try {
+    const data = {text: todo.text, id: todo.id, done: todo.done, important: todo.done, deadline: todo.deadline.toLocaleDateString()};
+    addData(data);    
+  } catch (error) {
+    console.log("Error saving todo");
+ }; 
 }
 </script>
 
 <style scoped>
 .input {
   margin: 15px 0;
+  flex-grow: 1;
+  margin-right: 8px;
 }
 .icon {
   margin-right: 10px;
@@ -66,4 +123,39 @@ function handleAddTodo() {
 .text-bold {
   font-weight: 700;
 }
+
+.input-group {
+  display: flex;        
+  align-items: center;  
+}
+
+button {
+  flex-shrink: 0;       
+  background-color: #1890ff; 
+  color: white;              
+  border: none;              
+  text-align: center;        
+  text-decoration: none;     
+  display: inline-block;     
+  font-size: 16px;           
+  transition: 0.3s;          
+  cursor: pointer;           
+  border-radius: 10px;       
+  box-shadow: 0 4px #999;   
+  width: 65px;
+  height: 35px;
+}
+
+button:hover {
+  background-color: #45a049; 
+  box-shadow: 0 6px #666;    
+  transform: translateY(-2px); 
+}
+
+button:active {
+  background-color: #3e8e41; 
+  box-shadow: 0 2px #666;   
+  transform: translateY(2px); 
+}
+
 </style>
