@@ -1,4 +1,7 @@
 <template>
+  <!-- I added a button to provide users with an alternative method for adding Todos. 
+  This ensures that users have a clear option available in case they do not realize that
+  they need to press 'Enter' to submit their tasks. --->
   <div class="input-group">
     <Input
       v-model:value="field"
@@ -9,10 +12,15 @@
     <button @click="handleAddTodo">ADD</button>
   </div>
 
+  <!-- I integrated an external component for handling the required date functionality specified in the project requirements. 
+  This component addresses all issues related to date management, such as ensuring the date is valid and correctly formatted. 
+  For more information about the component, visit its website at: https://vue3datepicker.com/. -->
   <div>
     Deadline: 
     <VueDatePicker v-model="deadline" :hide-input-icon="true" :enable-time-picker="false" :format="format" auto-apply></VueDatePicker>
   </div>
+  <!-- I modified the counters because I believe they represent important data for the user. 
+  I aimed to enhance and center their visibility to ensure they are more prominent and easily noticeable.-->
   <div class="counters-group">
     <Typography>Done: {{ store.doneTodosCount }}</Typography> 
     <Typography>Important: {{ store.importantTodosCount }}</Typography>
@@ -29,6 +37,9 @@
             title="Toggle important"
           />
         </div>
+        <!-- I made adjustments to the interface to improve legibility for users. 
+        More importantly, these changes ensure that if the name of a todo is too lengthy, 
+        it doesn't overflow the designated margins. -->
         <Typography :class="{ 'line-through': item.done, 'text-bold': item.important, 'list-item-text': item.text }">
         {{format2(item.deadline)}} --- {{item.text}}
         </Typography>
@@ -174,10 +185,6 @@ button:active {
 .list-item-text {
   float: left; 
   max-width: 500px;
-  /*white-space: nowrap;*/
-  /*overflow: hidden;*/
-  /*text-overflow: ellipsis;*/
-  /*border: 1px solid #ccc;*/
   word-wrap: break-word;
   text-indent: 20px;
 }
