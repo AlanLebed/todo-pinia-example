@@ -9,10 +9,15 @@
     <button @click="handleAddTodo">ADD</button>
   </div>
 
-  <VueDatePicker v-model="deadline"  :enable-time-picker="false" :format="format" auto-apply></VueDatePicker>
-  <Typography>Done: {{ store.doneTodosCount }}</Typography>
-  <Typography>Important: {{ store.importantTodosCount }}</Typography>
-  <Typography>Active: {{ store.activeTodosCount }}</Typography>
+  <div>
+    Deadline: 
+    <VueDatePicker v-model="deadline" :hide-input-icon="true" :enable-time-picker="false" :format="format" auto-apply></VueDatePicker>
+  </div>
+  <div class="counters-group">
+    <Typography>Done: {{ store.doneTodosCount }}</Typography> 
+    <Typography>Important: {{ store.importantTodosCount }}</Typography>
+    <Typography>Active: {{ store.activeTodosCount }}</Typography>
+  </div>
   <List bordered :data-source="store.todos">
     <template #renderItem="{ item }">
       <ListItem>
@@ -24,7 +29,7 @@
             title="Toggle important"
           />
         </div>
-        <Typography :class="{ 'line-through': item.done, 'text-bold': item.important }">
+        <Typography :class="{ 'line-through': item.done, 'text-bold': item.important, 'list-item-text': item.text }">
         {{format2(item.deadline)}} --- {{item.text}}
         </Typography>
         <CloseCircleOutlined @click="store.removeTodo(item.id)"
@@ -129,6 +134,14 @@ function handleAddTodo() {
   align-items: center;  
 }
 
+.counters-group {
+  display: flex;        
+  text-align: center;
+  padding: 2%;
+  font-size: 18px;
+  justify-content: space-evenly;
+}
+
 button {
   flex-shrink: 0;       
   background-color: #1890ff; 
@@ -158,4 +171,14 @@ button:active {
   transform: translateY(2px); 
 }
 
+.list-item-text {
+  float: left; 
+  max-width: 500px;
+  /*white-space: nowrap;*/
+  /*overflow: hidden;*/
+  /*text-overflow: ellipsis;*/
+  /*border: 1px solid #ccc;*/
+  word-wrap: break-word;
+  text-indent: 20px;
+}
 </style>
